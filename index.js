@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
 import AuthRoute from "./routers/AuthRouter.js";
+import UserRoute from "./routers/UserRouter.js";
 import { configDotenv } from "dotenv";
 
 const app = express();
@@ -28,3 +29,4 @@ app.listen(process.env.PORT || 5000, () => {
 
 // routes
 app.use("/auth", AuthRoute);
+app.use("/user", UserRoute);
