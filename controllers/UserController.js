@@ -1,4 +1,5 @@
 import UserModel from "../models/userModel.js";
+import bcrypt from "bcryptjs";
 
 export const getUsers = async (req, res) => {
   try {
@@ -30,51 +31,57 @@ export const getAUser = async (req, res) => {
 
 export const updateAUser = async (req, res) => {
   const userId = req.params.userId;
-  const { username, firstName, lastName, password } = req.body;
+  const { currentUserId, currentUserAdminStatus, password } = req.body;
 
-  try {
-    // Check if the user exists
-    const existingUser = await UserModel.findById(userId);
+  // Check if the user making the request is authorized to update the user
+  if (userId === currentUserId || currentUserAdminStatus) {
+    try {
+      // If a new password is provided, hash it
+      let hashedPassword;
+      if (password) {
+        hashedPassword = await bcrypt.hash(password, 10);
+      }
 
-    if (!existingUser) {
-      return res.status(404).json({ message: "User not found" });
+      // Build the update object based on whether a new password is provided
+      const updateObject = password
+        ? { password: hashedPassword, ...req.body }
+        : req.body;
+
+      // Find and update the user
+      const existingUser = await UserModel.findByIdAndUpdate(
+        userId,
+        updateObject,
+        { new: true }
+      );
+
+      // Check if the user was not found
+      if (!existingUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Return the updated user
+      res.status(200).json(existingUser);
+    } catch (error) {
+      res.status(500).json({ message: error?.message });
     }
-
-    // Update user details
-    existingUser.username = username || existingUser.username;
-    existingUser.firstName = firstName || existingUser.firstName;
-    existingUser.lastName = lastName || existingUser.lastName;
-
-    // If a new password is provided, hash and update it
-    if (password) {
-      existingUser.password = await bcrypt.hash(password, 10);
-    }
-
-    // Save the updated user to the database
-    await existingUser.save();
-
-    res.status(200).json(existingUser);
-  } catch (error) {
-    res.status(500).json({ message: error?.message });
+  } else {
+    // Return a 403 Forbidden status if the user is not authorized
+    res.status(403).json({ message: "Unauthorized to update this user" });
   }
 };
 
 export const deleteAUser = async (req, res) => {
   const userId = req.params.userId;
-
-  try {
-    // Check if the user exists
-    const existingUser = await UserModel.findById(userId);
-
-    if (!existingUser) {
-      return res.status(404).json({ message: "User not found" });
+  const { currentUserId, currentUserAdminStatus } = req.body;
+  if (userId === currentUserId || currentUserAdminStatus) {
+    try {
+      await UserModel.findByIdAndDelete(userId);
+      res.status(200).json({ message: "User deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: error?.message });
     }
-
-    // Remove the user from the database
-    await existingUser.remove();
-
-    res.status(200).json({ message: "User deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ message: error?.message });
+  } else {
+    // Return a 403 Forbidden status if the user is not authorized
+    res.status(403).json({ message: "Unauthorized to delete this user" });
   }
 };
