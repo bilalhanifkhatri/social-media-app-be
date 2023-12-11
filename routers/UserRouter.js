@@ -1,8 +1,10 @@
 import { Router } from "express";
 import {
   deleteAUser,
+  followUser,
   getAUser,
   getUsers,
+  unFollowUser,
   updateAUser,
 } from "../controllers/UserController.js";
 
@@ -19,5 +21,11 @@ router.put("/:userId", updateAUser);
 
 // Delete a user by ID
 router.delete("/:userId", deleteAUser);
+
+// Update a user by ID
+router.put("/:userId/follow", followUser);
+
+// Update a user by ID
+router.put("/:userId/unfollow", unFollowUser);
 
 export default router;

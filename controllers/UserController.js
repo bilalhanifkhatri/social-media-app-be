@@ -85,3 +85,51 @@ export const deleteAUser = async (req, res) => {
     res.status(403).json({ message: "Unauthorized to delete this user" });
   }
 };
+
+// follow user
+export const followUser = async (req, res) => {
+  const userId = req.params.userId;
+  const { currentUserId } = req.body;
+  if (currentUserId === userId) {
+    res.status(403).json({ message: "Action forbidden" });
+  } else {
+    try {
+      const followUser = await UserModel.findById(userId);
+      const followingUser = await UserModel.findById(currentUserId);
+
+      if (!followUser.followers.includes(currentUserId)) {
+        await followUser.updateOne({ $push: { followers: currentUserId } });
+        await followingUser.updateOne({ $push: { followings: userId } });
+        res.status(200).json({ message: "User followed!" });
+      } else {
+        res.status(403).json({ message: "User is Already followed by you" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: error?.message });
+    }
+  }
+};
+
+// follow user
+export const unFollowUser = async (req, res) => {
+  const userId = req.params.userId;
+  const { currentUserId } = req.body;
+  if (currentUserId === userId) {
+    res.status(403).json({ message: "Action forbidden" });
+  } else {
+    try {
+      const followUser = await UserModel.findById(userId);
+      const followingUser = await UserModel.findById(currentUserId);
+
+      if (followUser.followers.includes(currentUserId)) {
+        await followUser.updateOne({ $pull: { followers: currentUserId } });
+        await followingUser.updateOne({ $pull: { followings: userId } });
+        res.status(200).json({ message: "User unfollowed!" });
+      } else {
+        res.status(403).json({ message: "User is not followed by you" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: error?.message });
+    }
+  }
+};
