@@ -4,6 +4,7 @@ import {
   deletePost,
   getPost,
   getPosts,
+  getTimeLinePosts,
   likePost,
   updatePost,
 } from "../controllers/PostController.js";
@@ -27,5 +28,8 @@ router.delete("/:postId", deletePost);
 
 // like/dislike a post by ID
 router.post("/:postId/like", likePost);
+
+// get timeline a post by ID
+router.get("/:userId/timeline", getTimeLinePosts);
 
 export default router;
