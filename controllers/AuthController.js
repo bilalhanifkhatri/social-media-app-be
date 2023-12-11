@@ -11,22 +11,26 @@ export const loginUser = async (req, res) => {
 
     // Check if the user exists
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: "User not found", res: "error" });
     }
 
     // Compare the entered password with the hashed password in the database
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      return res.status(401).json({ message: "Invalid password" });
+      return res
+        .status(401)
+        .json({ message: "Invalid password", res: "error" });
     }
 
     // const { password, ...otherDetails } = user.toObject();
     // If the password is valid, you can create a token or handle the login as needed
     // For simplicity, we're just sending a success message and user data here
-    res.status(200).json({ message: "Login successful", user });
+    res
+      .status(200)
+      .json({ message: "Login successful", data: user, res: "success" });
   } catch (error) {
-    res.status(500).json({ message: error?.message });
+    res.status(500).json({ message: error?.message, res: "error" });
   }
 };
 
@@ -41,6 +45,7 @@ export const registerUser = async (req, res) => {
     if (existingUser) {
       return res.status(400).json({
         message: "Username already exists. Please choose a different username.",
+        res: "error",
       });
     }
 
@@ -58,8 +63,12 @@ export const registerUser = async (req, res) => {
     // Save the new user to the database
     await newUser.save();
 
-    res.status(200).json(newUser);
+    res.status(200).json({
+      message: "register successfully",
+      data: newUser,
+      res: "success",
+    });
   } catch (error) {
-    res.status(500).json({ message: error?.message });
+    res.status(500).json({ message: error?.message, res: "error" });
   }
 };
