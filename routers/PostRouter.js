@@ -4,6 +4,7 @@ import {
   deletePost,
   getPost,
   getPosts,
+  likePost,
   updatePost,
 } from "../controllers/PostController.js";
 
@@ -23,5 +24,8 @@ router.put("/:postId", updatePost);
 
 // Delete a post by ID
 router.delete("/:postId", deletePost);
+
+// like/dislike a post by ID
+router.post("/:postId/like", likePost);
 
 export default router;
