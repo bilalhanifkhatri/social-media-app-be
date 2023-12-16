@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import bodyParser from "body-parser";
 import AuthRoute from "./routers/AuthRouter.js";
+import UploadRoute from "./routers/UploadRouter.js";
 import UserRoute from "./routers/UserRouter.js";
 import PostRoute from "./routers/PostRouter.js";
 import { configDotenv } from "dotenv";
@@ -32,5 +33,6 @@ app.listen(process.env.PORT || 5000, () => {
 
 // routes
 app.use("/auth", AuthRoute);
+app.use("/upload", UploadRoute);
 app.use("/user", UserRoute);
 app.use("/post", PostRoute);
