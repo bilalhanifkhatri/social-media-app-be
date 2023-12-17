@@ -16,6 +16,10 @@ app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(cors());
 
+// set public folder
+app.use(express.static("public"));
+app.use("/images", express.static("images"));
+
 // database connections
 mongoose
   .connect(process.env.MONGODB_URL)
