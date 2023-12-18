@@ -8,9 +8,16 @@ export const getUsers = async (req, res) => {
       const { password, ...otherDetails } = user.toObject();
       return otherDetails;
     });
-    res.status(200).json(savedUserData);
+    res.status(200).json({
+      res: "success",
+      message: "data fetched successfully",
+      data: savedUserData,
+    });
   } catch (error) {
-    res.status(500).json({ message: error?.message });
+    res.status(500).json({
+      res: "error",
+      message: `some went wrong! ${error?.message}`,
+    });
   }
 };
 
@@ -21,11 +28,18 @@ export const getAUser = async (req, res) => {
     const user = await UserModel.findById(userId);
     const { password, ...otherDetails } = user.toObject();
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ res: "error", message: "User not found" });
     }
-    res.status(200).json(otherDetails);
+    res.status(200).json({
+      data: otherDetails,
+      res: "success",
+      message: "fetch successfully",
+    });
   } catch (error) {
-    res.status(500).json({ message: error?.message });
+    res.status(500).json({
+      res: "error",
+      message: `some went wrong! ${error?.message}`,
+    });
   }
 };
 
@@ -56,17 +70,28 @@ export const updateAUser = async (req, res) => {
 
       // Check if the user was not found
       if (!existingUser) {
-        return res.status(404).json({ message: "User not found" });
+        return res
+          .status(404)
+          .json({ res: "error", message: "User not found" });
       }
 
       // Return the updated user
-      res.status(200).json(existingUser);
+      res.status(200).json({
+        data: existingUser,
+        res: "error",
+        message: "updated successfully",
+      });
     } catch (error) {
-      res.status(500).json({ message: error?.message });
+      res.status(500).json({
+        res: "error",
+        message: `some went wrong! ${error?.message}`,
+      });
     }
   } else {
     // Return a 403 Forbidden status if the user is not authorized
-    res.status(403).json({ message: "Unauthorized to update this user" });
+    res
+      .status(403)
+      .json({ message: "Unauthorized to update this user", res: "error" });
   }
 };
 
@@ -76,13 +101,20 @@ export const deleteAUser = async (req, res) => {
   if (userId === currentUserId || currentUserAdminStatus) {
     try {
       await UserModel.findByIdAndDelete(userId);
-      res.status(200).json({ message: "User deleted successfully" });
+      res
+        .status(200)
+        .json({ res: "success", message: "User deleted successfully" });
     } catch (error) {
-      res.status(500).json({ message: error?.message });
+      res.status(500).json({
+        res: "error",
+        message: `some went wrong! ${error?.message}`,
+      });
     }
   } else {
     // Return a 403 Forbidden status if the user is not authorized
-    res.status(403).json({ message: "Unauthorized to delete this user" });
+    res
+      .status(403)
+      .json({ message: "Unauthorized to delete this user", res: "error" });
   }
 };
 
@@ -100,12 +132,17 @@ export const followUser = async (req, res) => {
       if (!followUser.followers.includes(currentUserId)) {
         await followUser.updateOne({ $push: { followers: currentUserId } });
         await followingUser.updateOne({ $push: { followings: userId } });
-        res.status(200).json({ message: "User followed!" });
+        res.status(200).json({ message: "User followed!", res: "success" });
       } else {
-        res.status(403).json({ message: "User is Already followed by you" });
+        res
+          .status(403)
+          .json({ message: "User is Already followed by you", res: "error" });
       }
     } catch (error) {
-      res.status(500).json({ message: error?.message });
+      res.status(500).json({
+        res: "error",
+        message: `some went wrong! ${error?.message}`,
+      });
     }
   }
 };
@@ -115,7 +152,7 @@ export const unFollowUser = async (req, res) => {
   const userId = req.params.userId;
   const { currentUserId } = req.body;
   if (currentUserId === userId) {
-    res.status(403).json({ message: "Action forbidden" });
+    res.status(403).json({ message: "Action forbidden", res: "error" });
   } else {
     try {
       const followUser = await UserModel.findById(userId);
@@ -124,12 +161,17 @@ export const unFollowUser = async (req, res) => {
       if (followUser.followers.includes(currentUserId)) {
         await followUser.updateOne({ $pull: { followers: currentUserId } });
         await followingUser.updateOne({ $pull: { followings: userId } });
-        res.status(200).json({ message: "User unfollowed!" });
+        res.status(200).json({ res: "success", message: "User unfollowed!" });
       } else {
-        res.status(403).json({ message: "User is not followed by you" });
+        res
+          .status(403)
+          .json({ res: "error", message: "User is not followed by you" });
       }
     } catch (error) {
-      res.status(500).json({ message: error?.message });
+      res.status(500).json({
+        res: "error",
+        message: `some went wrong! ${error?.message}`,
+      });
     }
   }
 };
