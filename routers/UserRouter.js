@@ -7,6 +7,7 @@ import {
   unFollowUser,
   updateAUser,
 } from "../controllers/UserController.js";
+import authMiddleware from "../middlewares/authMiddleware.js";
 
 const router = Router();
 
@@ -17,15 +18,15 @@ router.get("/", getUsers);
 router.get("/:userId", getAUser);
 
 // Update a user by ID
-router.put("/:userId", updateAUser);
+router.put("/:userId", authMiddleware, updateAUser);
 
 // Delete a user by ID
-router.delete("/:userId", deleteAUser);
+router.delete("/:userId", authMiddleware, deleteAUser);
 
 // Update a user by ID
-router.put("/:userId/follow", followUser);
+router.put("/:userId/follow", authMiddleware, followUser);
 
 // Update a user by ID
-router.put("/:userId/unfollow", unFollowUser);
+router.put("/:userId/unfollow", authMiddleware, unFollowUser);
 
 export default router;

@@ -151,8 +151,8 @@ export const getTimeLinePosts = async (req, res) => {
       },
       {
         $lookup: {
-          from: "Posts",
-          localField: "following",
+          from: "posts",
+          localField: "followings",
           foreignField: "userId",
           as: "followingPosts",
         },
