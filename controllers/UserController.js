@@ -1,5 +1,6 @@
 import UserModel from "../models/userModel.js";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 export const getUsers = async (req, res) => {
   try {
@@ -45,10 +46,10 @@ export const getAUser = async (req, res) => {
 
 export const updateAUser = async (req, res) => {
   const userId = req.params.userId;
-  const { currentUserId, currentUserAdminStatus, password } = req.body;
+  const { _id, currentUserAdminStatus, password } = req.body;
 
   // Check if the user making the request is authorized to update the user
-  if (userId === currentUserId || currentUserAdminStatus) {
+  if (userId === _id || currentUserAdminStatus) {
     try {
       // If a new password is provided, hash it
       let hashedPassword;
@@ -75,11 +76,20 @@ export const updateAUser = async (req, res) => {
           .json({ res: "error", message: "User not found" });
       }
 
+      const token = jwt.sign(
+        {
+          username: existingUser?.username,
+          id: existingUser?._id,
+        },
+        process.env.JWT_KEY,
+        { expiresIn: "1h" }
+      );
       // Return the updated user
       res.status(200).json({
         data: existingUser,
-        res: "error",
+        res: "success",
         message: "updated successfully",
+        token,
       });
     } catch (error) {
       res.status(500).json({
@@ -97,8 +107,8 @@ export const updateAUser = async (req, res) => {
 
 export const deleteAUser = async (req, res) => {
   const userId = req.params.userId;
-  const { currentUserId, currentUserAdminStatus } = req.body;
-  if (userId === currentUserId || currentUserAdminStatus) {
+  const { _id, currentUserAdminStatus } = req.body;
+  if (userId === _id || currentUserAdminStatus) {
     try {
       await UserModel.findByIdAndDelete(userId);
       res
