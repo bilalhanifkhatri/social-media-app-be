@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import bodyParser from "body-parser";
 import AuthRoute from "./routers/AuthRouter.js";
+import UploadRoute from "./routers/UploadRouter.js";
 import UserRoute from "./routers/UserRouter.js";
 import PostRoute from "./routers/PostRouter.js";
 import { configDotenv } from "dotenv";
@@ -14,6 +15,10 @@ configDotenv();
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(cors());
+
+// set public folder
+app.use(express.static("public"));
+app.use("/images", express.static("images"));
 
 // database connections
 mongoose
@@ -32,5 +37,6 @@ app.listen(process.env.PORT || 5000, () => {
 
 // routes
 app.use("/auth", AuthRoute);
+app.use("/upload", UploadRoute);
 app.use("/user", UserRoute);
 app.use("/post", PostRoute);

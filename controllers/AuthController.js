@@ -1,5 +1,6 @@
 import UserModel from "../models/userModel.js";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 // Function to handle user login
 export const loginUser = async (req, res) => {
@@ -26,9 +27,22 @@ export const loginUser = async (req, res) => {
     // const { password, ...otherDetails } = user.toObject();
     // If the password is valid, you can create a token or handle the login as needed
     // For simplicity, we're just sending a success message and user data here
-    res
-      .status(200)
-      .json({ message: "Login successful", data: user, res: "success" });
+
+    const token = jwt.sign(
+      {
+        username: user?.username,
+        id: user?._id,
+      },
+      process.env.JWT_KEY,
+      { expiresIn: "1h" }
+    );
+
+    res.status(200).json({
+      message: "Login successful",
+      data: user,
+      token: token,
+      res: "success",
+    });
   } catch (error) {
     res.status(500).json({ message: error?.message, res: "error" });
   }
@@ -37,7 +51,6 @@ export const loginUser = async (req, res) => {
 // registering a new user
 export const registerUser = async (req, res) => {
   const { username, firstName, lastName, password } = req.body;
-
   try {
     // Check if the username already exists in the database
     const existingUser = await UserModel.findOne({ username });
@@ -63,10 +76,20 @@ export const registerUser = async (req, res) => {
     // Save the new user to the database
     await newUser.save();
 
+    const token = jwt.sign(
+      {
+        username: newUser?.username,
+        id: newUser?._id,
+      },
+      process.env.JWT_KEY,
+      { expiresIn: "1h" }
+    );
+
     res.status(200).json({
       message: "register successfully",
       data: newUser,
       res: "success",
+      token: token,
     });
   } catch (error) {
     res.status(500).json({ message: error?.message, res: "error" });
