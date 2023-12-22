@@ -6,6 +6,8 @@ import AuthRoute from "./routers/AuthRouter.js";
 // import UploadRoute from "./routers/UploadRouter.js";
 import UserRoute from "./routers/UserRouter.js";
 import PostRoute from "./routers/PostRouter.js";
+import ChatRoute from "./routers/ChatRouter.js";
+import MessageRoute from "./routers/MessageRouter.js";
 import { configDotenv } from "dotenv";
 
 const app = express();
@@ -40,3 +42,5 @@ app.use("/auth", AuthRoute);
 // app.use("/upload", UploadRoute);
 app.use("/user", UserRoute);
 app.use("/post", PostRoute);
+app.use("/message", MessageRoute);
+app.use("/chat", ChatRoute);
